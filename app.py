@@ -17,7 +17,7 @@ app = Flask(__name__, static_url_path='/static')
 
 def light_ctr(command):
     valByte = command.to_bytes(1, 'big')
-    with serial.Serial("COM4", 115200) as ser:
+    with serial.Serial("COM3", 115200) as ser:
         ser.write(valByte)
         led_state_str = ser.read()
         led_state = int.from_bytes(led_state_str, 'big')
