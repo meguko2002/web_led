@@ -1,5 +1,5 @@
 import socket
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response,jsonify
 from serial import SerialException
 
 from camera import Camera
@@ -47,8 +47,10 @@ def index():
         req = request.get_data().decode('utf-8')
         command = 1 if req == 'on' else 0
         led_state = light_ctr(command)
-        msg = 'ON' if led_state else 'OFF'
-        return msg
+        msg = '点けました' if led_state else '消しました'
+        # return msg
+        # responseにjsonを返してみる
+        return jsonify({"led": msg})
 
 
 @app.route('/feed')
