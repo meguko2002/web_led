@@ -1,5 +1,7 @@
 import socket
 from flask import Flask, render_template, request, Response
+from serial import SerialException
+
 from camera import Camera
 import serial.tools.list_ports
 
@@ -17,10 +19,14 @@ app = Flask(__name__, static_url_path='/static')
 
 def light_ctr(command):
     valByte = command.to_bytes(1, 'big')
-    with serial.Serial("COM3", 115200) as ser:
-        ser.write(valByte)
-        led_state_str = ser.read()
-        led_state = int.from_bytes(led_state_str, 'big')
+    try:
+        with serial.Serial("COM3", 115200) as ser:
+            ser.write(valByte)
+            led_state_str = ser.read()
+            led_state = int.from_bytes(led_state_str, 'big')
+    except SerialException:
+        print('マイコンとの通信ができていない')
+        led_state = 0
     return led_state
 
 

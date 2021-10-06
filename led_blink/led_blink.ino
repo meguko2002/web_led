@@ -11,6 +11,7 @@ void loop() {
     if (byte_from_py == 0)led_state = 0;
     else if (byte_from_py == 1)led_state = 1;
     Serial.write(led_state);
+//    Serial.print(led_state);
   }
   digitalWrite(LED_PIN, led_state);
 }
