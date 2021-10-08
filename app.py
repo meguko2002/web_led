@@ -1,5 +1,5 @@
 import socket
-from flask import Flask, render_template, request, Response,jsonify
+from flask import Flask, render_template, request, Response, jsonify
 from serial import SerialException
 
 from camera import Camera
@@ -18,6 +18,7 @@ app = Flask(__name__, static_url_path='/static')
 
 
 def light_ctr(command):
+    reply_msg = ['消しました', '点けました', 'マイコンなし']
     valByte = command.to_bytes(1, 'big')
     try:
         with serial.Serial("COM3", 115200) as ser:
@@ -26,8 +27,8 @@ def light_ctr(command):
             led_state = int.from_bytes(led_state_str, 'big')
     except SerialException:
         print('マイコンとの通信ができていない')
-        led_state = 0
-    return led_state
+        led_state = 2
+    return reply_msg[led_state]
 
 
 def gen(camera):
@@ -40,16 +41,12 @@ def gen(camera):
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        led_state = light_ctr(2)    # 引数に0,1以外を入れてLEDの状態をESPから聞き出す
-        msg = 'ON' if led_state else 'OFF'
+        msg = light_ctr(0)  # 引数に0,1以外を入れてLEDの状態を変えずにESPからLEDの状態を聞き出す
         return render_template("index.html", msg=msg)
     elif request.method == 'POST':
         req = request.get_data().decode('utf-8')
         command = 1 if req == 'on' else 0
-        led_state = light_ctr(command)
-        msg = '点けました' if led_state else '消しました'
-        # return msg
-        # responseにjsonを返してみる
+        msg = light_ctr(command)
         return jsonify({"led": msg})
 
 
