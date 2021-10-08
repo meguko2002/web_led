@@ -5,7 +5,6 @@ from serial import SerialException
 from camera import Camera
 import serial.tools.list_ports
 
-# HOST = '172.18.17.111'
 HOST = None
 PORT = 5000
 
@@ -18,7 +17,7 @@ app = Flask(__name__, static_url_path='/static')
 
 
 def light_ctr(command):
-    reply_msg = ['消しました', '点けました', 'マイコンなし']
+    reply_msg = ['turned off', 'turned on', 'no connection']
     valByte = command.to_bytes(1, 'big')
     try:
         with serial.Serial("COM3", 115200) as ser:
@@ -26,7 +25,7 @@ def light_ctr(command):
             led_state_str = ser.read()
             led_state = int.from_bytes(led_state_str, 'big')
     except SerialException:
-        print('マイコンとの通信ができていない')
+        print('no connection with LED')
         led_state = 2
     return reply_msg[led_state]
 
