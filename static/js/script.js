@@ -1,26 +1,40 @@
-// ページ読込完了後にボタンにclickイベントを登録する
 window.addEventListener("load", function(){
-	document.getElementById("send_on").addEventListener("click", {state:"on", handleEvent:light_ctr},false);
-	document.getElementById("send_off").addEventListener("click", {state:"off", handleEvent:light_ctr},false);
+    document.getElementById("send_on").addEventListener("click",led_on,false);
+    document.getElementById("send_off").addEventListener("click",led_off,false);
+	document.getElementById('register').addEventListener("click", register,false);
+	document.getElementById('angle_val').addEventListener('keypress', test_event,false);
 }, false);
 
-function light_ctr(e){
-    console.log(this.state)
-    var XHR = new XMLHttpRequest();
-    // openメソッドにPOSTを指定して送信先のURLを指定します
-    XHR.open("POST", "/", true);
-    // sendメソッドにデータを渡して送信を実行する
-    XHR.send(this.state);
-    // サーバの応答をonreadystatechangeイベントで検出して正常終了したらデータを取得する
-    XHR.onreadystatechange = function(){
-        if(XHR.readyState == 4 && XHR.status == 200){
-            // POST送信した結果を表示する
-            jsonObj = JSON.parse(XHR.responseText);
-            document.getElementById("userinfo_response").innerHTML = jsonObj.led;
+
+function register(led_req) {
+    const formData = new FormData();
+    formData.append('switch', led_req);
+    const angle_val = document.getElementById('angle_val').value;
+    formData.append('ang_val',angle_val);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/");
+    xhr.send(formData);
+
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            jsonObj = JSON.parse(this.responseText);
+            document.getElementById('led_state').textContent  = jsonObj.ledState;
+            document.getElementById('angle').textContent = jsonObj.angle;
         }
     };
 }
 
+function test_event(e) {
+  	if (e.keyCode === 13) {
+        register() ;
+	}
+}
 
+function led_on(){
+    register("on");
+}
 
-
+function led_off(){
+    register("off");
+}
